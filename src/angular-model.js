@@ -431,15 +431,25 @@ angular.module('ur.model', []).provider('model', function() {
        * @returns {object} Map of the fields that have been changed from the $pristine version
        */
       $modified: function() {
-        var original = this.$original(), diff = {};
+        var actual =   arguments[0] || this;
+        var original = arguments[1] || this.$original();
 
-        for (var prop in this) {
-          if (isFunc(this[prop])) {
+        var diff = {};
+        var props = {};
+
+        for (var prop in actual) {
+          if (isFunc(actual[prop])) {
             continue;
           }
 
-          if (!equals(this[prop], original[prop])) {
-            diff[prop] = this[prop];
+          if(isObject(actual[prop])) {
+            props = this.$modified(actual[prop], original[prop])
+            if(Object.keys(props).length > 0) {
+              diff[prop] = props;
+            }
+          }
+          else if (!equals(actual[prop], original[prop])) {
+            diff[prop] = actual[prop];
           }
         }
 
